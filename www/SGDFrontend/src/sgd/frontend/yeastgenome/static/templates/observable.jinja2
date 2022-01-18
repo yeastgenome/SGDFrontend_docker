@@ -1,0 +1,105 @@
+{% extends "global_layout.jinja2" %}
+
+{% block title %}{{ observable.display_name }} Observable{% endblock %}
+
+{% block head %}
+<script>
+	var observable = {{ observable_js|safe }};
+</script>
+{% endblock %}
+
+{% block body %}
+
+<div class="row">
+
+<!-- Navbar
+================================================== -->
+    <!-- Includes navbar.html into template -->
+    {% include "navbar.jinja2" %}
+
+    <div class="small-12 medium-10 columns content-column">
+
+        <script>
+            add_navbar_title('Observable: <span class="gene_name">{{ observable.display_name }}</span>')
+            add_navbar_element('Overview', 'overview');
+            add_navbar_element('Ontology Diagram', 'ontology');
+            add_navbar_element('Annotations', 'annotations');
+        </script>
+<!-- Summary
+================================================== -->
+        <section id="overview" data-magellan-destination="overview">
+            <div class="page-header">
+                <h1>Observable: {{ observable.display_name }}</h1>
+                <hr />
+                <div class="">
+                    <dl class="key-value">
+                        <dt>Description</dt>
+                        <dd>{{ observable.description }}</dd>
+
+                        <dt>Qualifiers</dt>
+                        <dd>
+                            {% for phenotype in observable.phenotypes %}
+                            <span><a href="{{ phenotype.link|e }}">{{ phenotype.qualifier|e }}</a></span>{% if not loop.last %}, {% endif %}
+                            {% endfor %}
+                        </dd>
+                    </dl>
+
+                    <div class="panel" id="summary_wrapper">
+                        <div class="row">
+                            <div class="large-6 columns" id="mutant_experiment_chart"></div>
+                            <div class="large-6 columns" id="strain_chart" ></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+<!-- Network Visualization
+================================================== -->
+        <section id="ontology" data-magellan-destination="ontology">
+            <div class="page-header">
+                <h2>Ontology Diagram</h2>
+                <hr />
+                <div class="">
+                    <!-- Includes phenotype_table into template -->
+                    {% set network_id = "cy" %}
+                    {% include "phenotype_ontology_network.jinja2" %}
+                    <div id="children_wrapper">
+                        <br>
+                        <strong>Child Terms:</strong>
+                        <p>
+                            <span id="children"></span>
+                            <a id="children_see_more_button" onclick="$('#children_see_more').show();$('#children_see_more_button').hide();$('#children_see_less_button').show();"> ... <i class="fa fa-arrow-circle-right"></i> Show all</a>
+                            <span id="children_see_more" hidden></span>
+                            <a id="children_see_less_button" onclick="$('#children_see_more').hide();$('#children_see_more_button').show();$('#children_see_less_button').hide();" hidden> <i class="fa fa-arrow-circle-left"></i> Show fewer</a>
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+<!-- Annotations
+================================================== -->
+        <section id="annotations" data-magellan-destination="annotations">
+            <div class="page-header">
+                <h2>Annotations <span id="phenotype_table_header" class="round secondary label"></span></h2>
+                <hr />
+                <!-- Includes phenotype_table into template -->
+                {% set table_id = "phenotype_table" %}
+                {% include "phenotype_table.jinja2" %}
+            </div>
+        </section>
+    </div>
+</div>
+{% endblock body %}
+
+{% block scripts %}
+<script type="text/javascript" src="https://www.google.com/jsapi"></script>
+<script src="{{asset_root}}/js/phenotype_overview.js"></script>
+<script src="{{asset_root}}/js/build/cytoscape.min.js"></script>
+{# don't host arbor.js on CDN because it makes webworker files that don't work on the cloud :( #}
+<script src="/static/js/build/arbor.js"></script>
+<script src="{{asset_root}}/js/evidence.js"></script>
+<script src="{{asset_root}}/js/cytoscape.js"></script>
+<script src="{{asset_root}}/js/observable.js"></script>
+{% endblock scripts %}

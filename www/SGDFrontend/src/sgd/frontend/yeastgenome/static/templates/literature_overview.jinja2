@@ -1,0 +1,15 @@
+<dl class="key-value">
+    <dt>Unique References</dt>
+    <dd>{{ locus.literature_overview.total_count }}</dd>
+
+    {% for alias in locus.aliases if alias.category == 'Alias' %}
+        {% if loop.first %}<dt>Aliases</dt><dd>{% endif %}
+
+        {{ alias.display_name }}
+        {% set references = alias.references %}
+        {% set full_url = True %}
+        {%- include "biblio_references.jinja2" -%}
+
+        {% if not loop.last %},{% else %}</dd>{% endif %}
+    {% endfor %}
+</dl>

@@ -1,0 +1,90 @@
+{% extends "global_layout.jinja2" %}
+
+{% block title %}{{ domain.display_name }}{% endblock %}
+
+{% block head %}
+<script>
+    var domain = {{ domain_js|safe }};
+</script>
+{% endblock %}
+
+
+{% block body %}
+
+<!-- Navbar
+================================================== -->
+<div class="row">
+	
+<!-- Includes navbar.html into template -->
+    {% include "navbar.jinja2" %}
+
+    <div class="small-12 medium-10 columns content-column">
+
+        <script>
+            add_navbar_title('Domain: <span class="gene_name">{{ domain.display_name }}</span>');
+            add_navbar_element('Overview', 'overview');
+            add_navbar_element('Annotations', 'annotations');
+            add_navbar_element('GO Process Enrichment', 'enrichment');
+        </script>
+
+        <!-- Summary
+        ================================================== -->
+        <section id="overview" data-magellan-destination="overview">
+            <div class="page-header">
+                <h1>Domain: {{ domain.display_name }}</h1>
+                <hr />
+                <div class="">
+                    <dl class="key-value">
+                        {% for url in domain.urls %}
+                            {% if loop.first %}<dt>Accession ID</dt><dd>{% endif %}
+                            <a href="{{ url.link }}" target="_blank">{{ url.display_name }}</a>{% if not loop.last %}, {% else %}</dd>{% endif %}
+                        {% endfor %}
+
+                        <dt>Source</dt>
+                        <dd>{{ domain.source.display_name }}</dd>
+
+                        {%  if domain.description != none %}
+                            <dt>Description</dt>
+                            <dd>{{ domain.description }}</dd>
+                        {%  endif %}
+
+                    </dl>
+                </div>
+            </div>
+        </section>
+
+        <!-- Annotations
+        ================================================== -->
+        <section id="annotations" data-magellan-destination="annotations">
+            <div class="page-header">
+                <h2>Annotations <span id="domain_table_header" class="round secondary label"></span></h2>
+                <hr />
+                <div class="">
+                    <!-- Includes domain_table into template -->
+                    {% set table_id = "domain_table" %}
+                    {% include "domain_table.jinja2" %}
+                </div>
+            </div>
+        </section>
+
+        <!-- Enrichment
+    ================================================== -->
+        <section id="enrichment" data-magellan-destination="enrichment">
+            <h2>GO Process Enrichment <span id="enrichment_table_header" class="round secondary label"></span></h2>
+            <hr />
+            <div class="">
+                <!-- Includes gene_list_table into template -->
+                {% set table_id = "enrichment_table" %}
+                {% include "enrichment_table.jinja2" %}
+            </div>
+        </section>
+
+    </div>
+</div>
+
+{% endblock body %}
+
+{% block scripts %}
+<script src="{{asset_root}}/js/evidence.js"></script>
+<script src="{{asset_root}}/js/domain.js"></script>
+{% endblock scripts %}

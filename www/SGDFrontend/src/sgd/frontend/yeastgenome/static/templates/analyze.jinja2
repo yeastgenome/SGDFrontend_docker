@@ -1,0 +1,79 @@
+{% extends "global_layout.jinja2" %}
+{% block title %}Analyze{% endblock %}
+
+{% block head %}
+<script>
+	var bioents = {{bioents | safe}};
+    var list_name = "{{ list_name }}";
+    var list_name_html = "Analyze {{ list_name_html | safe }}";
+</script>
+{% endblock %}
+
+{% block body %}
+
+<!-- Navbar
+================================================== -->
+<div class="row">
+
+    <!-- Includes navbar.html into template -->
+    {% include "navbar.jinja2" %}
+
+    <div class="small-12 medium-10 columns">
+        <h1>Analyze {{ list_name_html | safe }}</h1>
+        <hr />
+
+        <script>
+            add_navbar_title(list_name_html);
+            add_navbar_element('Tools', 'tools');
+            add_navbar_element('Genes', 'gene_list');
+        </script>
+
+<!-- Analyze
+================================================== -->
+        <section id="tools" data-magellan-destination="tools">
+                <h2>Tools</h2>
+                <hr />
+                
+                <div class="row">
+                    <div class="large-3 columns">
+                        <h3><a id="go_term_finder">GO Term Finder</a></h3>
+                        <h4 class="subheader">Find common GO annotations between genes.</h4>
+                    </div>
+                    <div class="large-3 columns">
+                        <h3><a id="go_slim_mapper">GO Slim Mapper</a></h3>
+                        <h4 class="subheader">Sort genes into broad categories.</h4>
+                    </div>
+                    <div class="large-3 columns">
+                        <h3><a id="spell">SPELL</a></h3>
+                        <h4 class="subheader">View expression data.</h4>
+                    </div>
+                    <div class="large-3 columns">
+                        <h3><a id="yeastmine">YeastMine</a></h3>
+                        <h4 class="subheader">Conduct advanced analysis.</h4>
+                    </div>
+                </div>
+        </section>
+        
+        <hr>
+
+<!-- Gene List
+================================================== -->
+        <section id="gene_list" class="analyze-gene-list" data-magellan-destination="gene_list">
+                <h2>Genes</h2>
+                <hr />
+                <!-- Includes gene_list_table into template -->
+                {% set table_id = "gene_list_table" %}
+                {% set table_title = list_name %}
+                {% include "gene_list_table.jinja2" %}
+        </section>
+    </div>
+</div>
+
+{% endblock body %}
+
+{% block scripts %}
+<script src="{{asset_root}}/js/evidence.js"></script>
+<script src="{{asset_root}}/js/analyze.js"></script>
+{% endblock scripts %}
+
+

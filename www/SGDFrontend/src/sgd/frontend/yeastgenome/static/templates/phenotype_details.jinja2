@@ -1,0 +1,140 @@
+{% extends "global_layout.jinja2" %}
+
+{% block title %}{{ locus.display_name }} Phenotypes{% endblock %}
+
+{% block head %}
+<script>
+	var locus = {{ locus_js|safe }};
+</script>
+{% endblock %}
+
+{% block body %}
+
+<!-- Tabs
+================================================== -->
+<!-- Includes tabs.html into template -->
+{% include "tabs.jinja2" %}
+<script>document.getElementById("phenotype_tab").className += " active";</script>
+
+<div class="row">
+
+<!-- Navbar
+================================================== -->
+    <!-- Includes navbar.html into template -->
+    {% include "navbar.jinja2" %}
+
+    <div class="small-12 medium-10 columns content-column">
+
+        <script>
+            add_navbar_title("<span>{% if locus.display_name == locus.format_name %}{{ locus.display_name }}{% else %}{{ locus.display_name }} / {{ locus.format_name }}{% endif %}</span>");
+            add_navbar_element("Phenotype Overview", "overview");
+            add_navbar_element("Annotations", "annotations");
+            add_navbar_element("Shared Phenotypes", "network");
+            add_navbar_element("Resources", "resources");
+        </script>
+
+<!-- Overview
+================================================== -->
+<section id="overview" data-magellan-destination="overview">
+    <a target="_blank" href="https://sites.google.com/view/yeastgenome-help/function-help/phenotypes" name="top" class="documentation-link">Phenotype Help <i class="fa fa-question-circle"></i></a>
+    <h1>{% if locus.display_name == locus.format_name %}{{ locus.display_name }}{% else %}{{ locus.display_name }} / {{ locus.format_name }}{% endif %} Phenotype
+        <a href="#" data-dropdown="summary_info"><i class="fa fa-info-circle"></i></a>
+
+        <p id="summary_info" class="f-dropdown content medium" data-dropdown-content>
+            Phenotype annotations for a gene are curated single mutant phenotypes that require an
+            observable (e.g., "cell shape"), a qualifier (e.g., "abnormal"), a mutant type (e.g., null),
+            strain background, and a reference. In addition, annotations are classified as classical
+            genetics or high-throughput (e.g., large scale survey, systematic mutation set). Whenever
+            possible, allele information and additional details are provided.
+        </p>
+    </h1>
+    <hr />
+    {% if locus['phenotype_overview']['paragraph'] %}
+        <dl class="key-value">
+            <dt>Summary</dt>
+            <dd>{{ locus['phenotype_overview']['paragraph']|safe }}</dd>
+        </dl>
+    {% endif %}
+
+    <!-- Includes phenotype_overview.html into template -->
+    {% include "phenotype_overview.jinja2" %}
+</section>
+
+<!-- Annotations
+================================================== -->
+    <section id="annotations" data-magellan-destination="annotations">
+        <h2>Annotations
+            <a href="#" data-dropdown="annotation_info"><i class="fa fa-info-circle"></i></a>
+
+            <p id="annotation_info" class="f-dropdown content medium" data-dropdown-content>
+                A phenotype is defined as an observable (e.g., apoptosis) and a qualifier (e.g., increased). There may be more than one row with the same phenotype if that phenotype was observed in separate studies or in different conditions, strains, alleles, etc.
+            </p>
+            <span id="phenotype_table_header" class="round secondary label"></span>
+        </h2>
+        <hr />
+        <div>
+            <!-- Includes phenotype_table into template -->
+            {% set table_id = "phenotype_table" %}
+            {% include "phenotype_table.jinja2" %}
+        </div>
+    </section>
+
+<!-- Network Visualization
+================================================== -->
+    <section id="network" data-magellan-destination="network">
+        <h2>Shared Phenotypes
+            <a href="#" data-dropdown="network_info"><i class="fa fa-info-circle"></i></a>
+
+                <p id="network_info" class="f-dropdown content medium" data-dropdown-content>
+                    This diagram displays phenotype observables (purple squares) that are shared between the
+                    given gene (yellow circle) and other genes (gray circles) based on the number of phenotype
+                    observables shared (adjustable using the slider at the bottom).
+                </p>
+        </h2>
+        <hr />
+        <div class="">
+            {% set network_id = "cy" %}
+            {% set network_title = "Shared Observables for " + locus.display_name %}
+            {% include "phenotype_network.jinja2" %}
+        </div>
+    </section>
+
+<!-- Resources
+================================================== -->
+    <section id="resources" data-magellan-destination="resources">
+        <h2>Resources</h2>
+        <hr />
+        <div class="panel">
+            <h3>Mutant Strains</h3>
+                <p id="mutant_resources_list">
+                    {% for url in locus.urls if url.category == 'LOCUS_PHENOTYPE_RESOURCES_MUTANT_STRAINS'%}
+                        <a href="{{ url.link }}">{{ url.display_name }}</a>{% if not loop.last %} | {% endif %}
+                    {% endfor %}
+                </p>
+            <h3>Phenotype Resources</h3>
+                <p id="phenotype_resources_list">
+                    {% for url in locus.urls if url.category == 'LOCUS_PHENOTYPE_RESOURCES_PHENOTYPE_RESOURCES'%}
+                        <a href="{{ url.link }}">{{ url.display_name }}</a>{% if not loop.last %} | {% endif %}
+                    {% endfor %}
+                </p>
+            <h3>Ontology</h3>
+                <p id="ontology_resources_list">
+                    {% for url in locus.urls if url.category == 'LOCUS_PHENOTYPE_RESOURCES_ONTOLOGY'%}
+                        <a href="{{ url.link }}">{{ url.display_name }}</a>{% if not loop.last %} | {% endif %}
+                    {% endfor %}
+                </p>
+        </div>
+    </section>
+    </div>
+</div>
+{% endblock body %}
+
+{% block scripts %}
+<script src="{{asset_root}}/js/build/nouislider.min.js"></script>
+<script src="{{asset_root}}/js/build/cytoscape.min.js"></script>
+{# don't host arbor.js on CDN because it makes webworker files that don't work on the cloud :( #}
+<script src="/static/js/build/arbor.js"></script>
+<script src="{{asset_root}}/js/cytoscape.js"></script>
+<script src="{{asset_root}}/js/evidence.js"></script>
+<script src="{{asset_root}}/js/phenotype_details.js"></script>
+{% endblock scripts %}

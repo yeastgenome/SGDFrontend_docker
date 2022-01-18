@@ -1,0 +1,187 @@
+{% extends "global_layout.jinja2" %}
+
+{% block title %}{{ locus.display_name }} Interactions{% endblock %}
+
+{% block head %}
+<script>
+    var locus = {{ locus_js|safe }}
+</script>
+{% endblock %}
+
+{% block body %}
+
+<!-- Tabs
+================================================== -->
+<!-- Includes tabs.html into template -->
+{% include "tabs.jinja2" %}
+<script>document.getElementById("interaction_tab").className += " active";</script>
+
+<!-- Navbar
+================================================== -->
+<div class="row">
+	
+    <!-- Includes navbar.html into template -->
+    {% include "navbar.jinja2" %}
+
+    <div class="small-12 medium-10 columns content-column">
+
+        <script>
+        //Set up navbar
+            add_navbar_title('<span>{% if locus.display_name == locus.format_name %}{{ locus.display_name }}{% else %}{{ locus.display_name }} / {{ locus.format_name }}{% endif %}</span>');
+            add_navbar_element('Interactions Overview', 'overview');
+            add_navbar_element('Genetic Interactions', 'genetic');
+	    add_navbar_element('Physical Interactions', 'physical');
+            add_navbar_element('Interaction Network', 'network');
+            add_navbar_element('Resources', 'resources');
+        </script>
+
+<!-- Overview
+================================================== -->
+    <section id="overview" data-magellan-destination="overview">
+        <a target="_blank" href="https://sites.google.com/view/yeastgenome-help/function-help/interactions" name="top" class="documentation-link">Interaction Help <i class="fa fa-question-circle"></i></a>
+        <h1>{% if locus.display_name == locus.format_name %}{{ locus.display_name }}{% else %}{{ locus.display_name }} / {{ locus.format_name }}{% endif %} Interactions
+            <a href="#" data-dropdown="summary_info"><i class="fa fa-info-circle"></i></a>
+
+            <p id="summary_info" class="f-dropdown content medium" data-dropdown-content>
+                Interaction annotations are curated by <a href="http://thebiogrid.org/" target="_blank">BioGRID</a> and
+                include physical or genetic interactions
+                observed between at least two genes. An interaction annotation is composed of the
+                interaction type, name of the interactor, assay type (e.g., Two-Hybrid), annotation type
+                (e.g., manual or high-throughput), and a reference. Experimental details, phenotype,
+                modification, and multiple mutant information are included when available.
+            </p>
+        </h1>
+        <hr />
+        {% if locus['interaction_overview']['paragraph'] %}
+            <dl class="key-value">
+                <dt>Summary</dt>
+                <dd>{{ locus['interaction_overview']['paragraph']|safe }}</dd>
+            </dl>
+        {% endif %}
+        <p>
+            Source: All physical and genetic interaction annotations listed in SGD are curated by <a href="http://thebiogrid.org">BioGRID</a>.
+        </p>
+        <div class="panel">
+            <!-- Includes interaction_overview.html into template -->
+            {% include "interaction_overview.jinja2" %}
+
+           {% if locus.interaction_overview.total_interactors > 0 %}
+            <div class="button-bar">
+                <h5>Analyze</h5>
+                <ul class="button-group radius">
+                    <li><a disabled="true" id="phys" class="small button secondary sgd-icon-venn-physical">Physical</a></li>
+                    <li><a disabled="true" id="gen" class="small button secondary sgd-icon-venn-genetic">Genetic</a></li>
+                    <li><a disabled="true" id="phys_gen_intersect" class="small button secondary sgd-icon-venn-intersection">Intersection</a></li>
+                    <li><a disabled="true" id="phys_gen_union" class="small button secondary sgd-icon-venn-all">All</a></li>
+                </ul>
+                <ul class="button-group radius" hidden>
+                    <li><a disabled="true" class="small button secondary radius" id="download_overview"><i class="icon-picture"></i> PNG</a></li>
+                </ul>
+            </div>
+            {% endif %}
+        </div>
+    </section>
+
+<!-- Genetic Interactions
+================================================== -->
+    <section id="genetic" data-magellan-destination="genetic">
+        <h2>Genetic Interactions
+            <a href="#" data-dropdown="genetic_interaction"><i class="fa fa-info-circle"></i></a>
+
+                <p id="genetic_interaction" class="f-dropdown content medium" data-dropdown-content>
+                    An interaction is defined as an experimentally observed physical or genetic interaction
+                    between two genes. There may be more than one row listed for the same interactor if the
+                    interaction between it and the given gene was observed in separate studies. All
+                    interactions
+                    listed in SGD are curated by <a href="http://thebiogrid.org/" target="_blank">BioGRID</a>.
+                </p>
+        </h2>
+        <hr />
+	
+        <div class="spaced-container">
+            <h3>Genetic Interactions
+                <span id="genetic_interaction_table_header" class="round secondary label"></span>
+            </h3>
+            <!-- Includes genetic_interaction_table into template -->
+            {% set table_id = "genetic_interaction_table" %}
+            {% include "genetic_interaction_table.jinja2" %}
+        </div>
+
+    </section>
+
+<!-- Physical Interactions
+================================================== -->
+    <section id="physical" data-magellan-destination="physical">
+        <h2>Physical Interactions
+            <a href="#" data-dropdown="physical_interaction"><i class="fa fa-info-circle"></i></a>
+
+                <p id="physical_interaction" class="f-dropdown content medium" data-dropdown-content>
+                    An interaction is defined as an experimentally observed physical or genetic interaction
+                    between two genes. There may be more than one row listed for the same interactor if the
+                    interaction between it and the given gene was observed in separate studies. All
+                    interactions
+                    listed in SGD are curated by <a href="http://thebiogrid.org/" target="_blank">BioGRID</a>.
+                </p>
+	</h2>
+	<hr />
+
+	<div class="spaced-container">
+	    <h3>Physical Interactions
+            	<span id="physical_interaction_table_header" class="round secondary label"></span>
+	    </h3>
+	    <!-- Includes physical_interaction_table into template -->
+            {% set table_id = "physical_interaction_table" %}
+            {% include "physical_interaction_table.jinja2" %}
+	</div>
+
+    </section>
+
+<!-- Network Visualization
+================================================== -->
+    <section id="network" data-magellan-destination="network">
+        <h2>Interaction Network
+             <a href="#" data-dropdown="network_info"><i class="fa fa-info-circle"></i></a>
+
+                <p id="network_info" class="f-dropdown content medium" data-dropdown-content>
+                    This diagram displays physical (purple lines) and genetic (green lines) interactions between
+                    the
+                    given gene (yellow circle) and its interactors (gray circles) based on the number of
+                    experiments
+                    supporting each interaction (adjustable using the slider at the bottom). Interactions
+                    between the
+                    interactors for a given gene are also shown.
+                </p>
+        </h2>
+        <hr />
+        <div class="">
+            {% set network_id = "cy" %}
+            {% include "interaction_network.jinja2" %}
+        </div>
+    </section>
+
+<!-- Resources
+================================================== -->
+    <section id="resources" data-magellan-destination="resources">
+        <h2>Resources</h2>
+        <hr />
+        <p id="resources_list" class="panel">
+            {% for url in locus.urls if url.category == 'LOCUS_INTERACTION'%}
+                <a href="{{ url.link }}">{{ url.display_name }}</a>{% if not loop.last %} | {% endif %}
+            {% endfor %}
+        </p>
+    </section>
+
+    </div>
+</div>
+
+{% endblock body %}
+
+{% block scripts %}
+<script src="{{asset_root}}/js/build/nouislider.min.js"></script>
+<script src="{{asset_root}}/js/build/cytoscape.min.js"></script>
+{# don't host arbor.js on CDN because it makes webworker files that don't work on the cloud :( #}
+<script src="/static/js/build/arbor.js"></script>
+<script src="{{asset_root}}/js/cytoscape.js"></script>
+<script src="{{asset_root}}/js/evidence.js"></script>
+<script src="{{asset_root}}/js/interaction_details.js"></script>
+{% endblock scripts %}

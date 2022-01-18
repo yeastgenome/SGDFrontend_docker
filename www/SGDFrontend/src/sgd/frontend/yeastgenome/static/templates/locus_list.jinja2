@@ -1,0 +1,46 @@
+{% extends "global_layout.jinja2" %}
+{% block title %}{{ locus_list.list_name }} Loci{% endblock %}
+
+{% block head %}
+<script>
+    var locus_list = {{ locus_list_js|safe }};
+</script>
+{% endblock %}
+
+{% block body %}
+
+<!-- Navbar
+================================================== -->
+<div class="row">
+
+    <!-- Includes navbar.html into template -->
+    {% include "navbar.jinja2" %}
+
+    <div class="small-12 large-9 columns">
+
+        <script>
+            add_navbar_title('{{ locus_list.list_name }} Loci');
+            add_navbar_element('Entries', 'entries');
+        </script>
+
+<!-- Gene List
+================================================== -->
+        <section id="entries" data-magellan-destination="entries">
+            <div class="page-header">
+                <h1>{{ locus_list.list_name | safe }} Loci</h1>
+                <!-- Includes gene_list_table into template -->
+                {% set table_id = "gene_list_table" %}
+                {% set table_title = list_name %}
+                {% include "gene_list_table.jinja2" %}
+                <br>
+            </div>
+        </section>
+    </div>
+</div>
+
+{% block scripts %}
+<script src="{{asset_root}}/js/evidence.js"></script>
+<script src="{{asset_root}}/js/locus_list.js"></script>
+{% endblock scripts %}
+
+{% endblock body %}

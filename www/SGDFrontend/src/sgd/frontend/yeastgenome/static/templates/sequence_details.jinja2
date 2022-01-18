@@ -1,0 +1,108 @@
+{% extends "lite_layout.jinja2" %}
+
+{% block title %}{{ locus.display_name }} Sequence{% endblock %}
+
+{% block head %}
+<script>
+	var sequence_details_link = "{{sequence_details_link}}";
+    var neighbor_sequence_details_link = "{{neighbor_sequence_details_link}}";
+	var download_table_link = "{{download_table_link}}";
+    var download_sequence_link = "{{download_sequence_link}}";
+	var analyze_link = "{{analyze_table_link}}";
+
+    var bootstrappedData = {
+        displayName: "{{ locus.display_name }}",
+        formatName: "{{ locus.format_name }}",
+        locusId: "{{ locus.id }}",
+        locusLink: "{{ locus.link }}",
+        locusHistory: {{ history_js|safe }},
+        sgdid: "{{locus.sgdid}}",
+	main_strain: "{{locus.main_strain}}",
+        featureType: "{{locus.locus_type}}"
+    };
+</script>
+{% endblock %}
+
+{% block body %}
+
+<!-- Tabs
+================================================== -->
+<!-- Includes tabs.html into template -->
+{% include "tabs.jinja2" %}
+
+<!-- Navbar
+================================================== -->
+<div class="row">
+
+    <div id="navbar-container" class="large-2 columns hide-for-small-down">
+    </div>
+
+    <div class="small-12 medium-10 columns content-column">
+
+<!-- Overview
+================================================== -->
+    <section id="overview">
+        <a target="_blank" href="https://sites.google.com/view/yeastgenome-help/sequence-help" name="top" class="documentation-link">Sequence Help <i class="fa fa-question-circle"></i></a>
+        <h1>{% if locus.display_name == locus.format_name %}{{ locus.display_name }}{% else %}{{ locus.display_name }} / {{ locus.format_name }}{% endif %} Sequence
+            <a href="#" data-dropdown="overview_info"><i class="fa fa-info-circle"></i></a>
+
+            <p id="overview_info" class="f-dropdown content medium" data-dropdown-content>
+               Sequences and genome annotation information for Reference Strain S288C and a select set of
+                Alternative References.
+            </p>
+        </h1>
+        <hr />
+        <div class="">
+            <!-- Includes sequence_overview into template -->
+            {% include "sequence_overview.jinja2" %}
+        </div>
+    </section>
+
+    <!--  target for client rendering -->
+    <div id="sequence-viz" class="sequence-viz-container sequence-init">
+        <div class="panel sgd-viz sequence-init">
+            <div class="sgd-loader-container"><div class="sgd-loader"></div></div>
+        </div>
+    </div>
+
+        <!-- Resources
+================================================== -->
+    <section id="resources">
+        <h2>Resources</h2>
+        <hr />
+        <div class="panel">
+            <p id='resources_list'>
+                {% for url in locus.urls if url.category == 'LOCUS_SEQUENCE'%}
+                    <a href="{{ url.link }}">{{ url.display_name }}</a>{% if not loop.last %} | {% endif %}
+                {% endfor %}
+            </p>
+
+            {% for url in locus.urls if url.category == 'LOCUS_SEQUENCE_S288C'%}
+                {% if loop.first %}<h3>S288C only</h3><p id="reference_only_resources_list">{% endif %}
+                <a href="{{ url.link }}">{{ url.display_name }}</a>{% if not loop.last %} | {% else %} </p> {% endif %}
+            {% endfor %}
+
+
+            {% for url in locus.urls if url.category == 'LOCUS_SEQUENCE_OTHER_SPECIES'%}
+                {% if loop.first %}<h3>S288C vs. other species</h3> <p id="other_species_resources_list">{% endif %}
+                <a href="{{ url.link }}">{{ url.display_name }}</a>{% if not loop.last %} | {% else %} </p> {% endif %}
+            {% endfor %}
+
+
+            {% for url in locus.urls if url.category == 'LOCUS_SEQUENCE_OTHER_STRAINS'%}
+                {% if loop.first %}<h3>S288C vs. other strains</h3><p id="other_strains_resources_list">{% endif %}
+                <a href="{{ url.link }}">{{ url.display_name }}</a>{% if not loop.last %} | {% else %} </p> {% endif %}
+            {% endfor %}
+        </div>
+    </section>
+
+    </div>
+</div>
+
+{% endblock body %}
+
+{% block scripts %}
+<script>
+    views.sequence.render();
+</script>
+{% endblock scripts %}

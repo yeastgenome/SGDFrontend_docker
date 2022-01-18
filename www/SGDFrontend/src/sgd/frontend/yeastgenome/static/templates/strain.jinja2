@@ -1,0 +1,148 @@
+{% extends "global_layout.jinja2" %}
+
+{% block title %}{{ strain.display_name }}{% endblock %}
+
+{% block head %}
+<script>
+    var strain = {{ strain_js|safe }};
+</script>
+{% endblock %}
+
+{% block body %}
+
+<!-- Navbar
+================================================== -->
+<div class="row">
+	
+<!-- Includes navbar.html into template -->
+    {% include "navbar.jinja2" %}
+
+    <div class="small-12 medium-10 columns content-column">
+
+        <script>
+            add_navbar_title('Strain: <span class="gene_name">{{ strain.display_name }}</span>');
+            add_navbar_element('Overview', 'overview');
+            {% if strain.assembly_size != None %}
+                add_navbar_element('Genome Sequence', 'genome_sequence');
+            {% endif %}
+            {% if strain.urls|length > 0 %}
+                add_navbar_element('Resources', 'resources');
+            {% endif %}
+        </script>
+
+        <!-- Summary
+        ================================================== -->
+        <section id="overview" data-magellan-destination="overview">
+            <div class="page-header">
+                <h1>Strain: {{ strain.display_name }}</h1>
+                <hr />
+                <div class="">
+
+                    <dl class="key-value">
+                        {% if strain.status != None %}
+                            <dt>Status</dt>
+                            <dd>{{ strain.status }}</dd>
+                        {% endif %}
+
+                        {% if strain.genotype != None %}
+                            <dt>Genotype</dt>
+                            <dd>{{ strain.genotype|safe }}</dd>
+                        {% endif %}
+
+                        <dt>Description</dt>
+                        <dd>{{ strain.description }}</dd>
+                    </dl>
+
+                    <p id="summary_paragraph"></p>
+                    <ul id="summary_paragraph_reference_list" class="literature-list"></ul>
+                </div>
+            </div>
+        </section>
+
+        {% if strain.assembly_size != None %}
+        <!-- Genome Sequence
+        ================================================== -->
+        <section id="genome_sequence" data-magellan-destination="genome_sequence">
+            <div class="page-header">
+                <h2>Genome Sequence
+                <a href="#" data-dropdown="genome_sequence_info"><i class="fa fa-info-circle"></i></a>
+
+                <p id="genome_sequence_info" class="f-dropdown content medium" data-dropdown-content>
+                    {% if strain.display_name == 'S288C' %}
+                        Genome sequence information for the S288C reference strain, including GenBank accession IDs, RefSeq accession IDs, and assembly statistics.
+                    {% else %}
+                        Genome sequence information for a particular strain, including GenBank accession IDs and assembly
+                        statistics. The table below lists all contigs included in the genome, listed by GenBank accession,
+                        with information regarding where that contig maps to the S288C Reference Genome. Note that only the
+                        single best BLAST hit for each contig is shown, based on highest bit score from a pairwise BLAST of
+                        the genome against <a href="/strain/S288C/overview">S288C</a> using
+                        <a href="http://www.ncbi.nlm.nih.gov//blast/Blast.cgi?PAGE_TYPE=BlastSearch&PROG_DEF=blastn&BLAST_PROG_DEF=megaBlast&BLAST_SPEC=OGP__4932__9518" target="_blank">NCBI’s Genome BLAST</a> tool.
+                    {% endif %}
+                </p>
+                </h2>
+                <hr />
+                <div class="">
+                    <dl class="key-value">
+                        <dt>GenBank</dt>
+                        <dd><a href="{{genbank_url}}">{{ strain.genbank_id }}</a></dd>
+                        <dt>Assembly Size</dt>
+                        <dd>{{ strain.assembly_size }}</dd>
+                        {% if strain.fold_coverage != None %}
+                        <dt>Fold Coverage</dt>
+                        <dd>{{ strain.fold_coverage }}</dd>
+                        {% endif %}
+                        <dt>Scaffolds</dt>
+                        <dd>{{ strain.scaffold_number }}</dd>
+                        <dt>Longest Scaffold</dt>
+                        <dd>{{ strain.longest_scaffold }}</dd>
+                        {% if strain.scaffold_n50 != None %}
+                        <dt>Scaffold N50</dt>
+                        <dd>{{ strain.scaffold_n50 }}</dd>
+                        {% endif %}
+                        {% if strain.feature_count != None %}
+                        <dt>ORFs</dt>
+                        <dd>{{ strain.feature_count }}</dd>
+                        {% endif %}
+                    </dl>
+
+                    <!-- Includes contig_table into template -->
+                    {% set table_id = "contig_table" %}
+                    {% if strain.display_name == 'S288C' %}
+                        {% include "s288c_contig_table.jinja2" %}
+                    {% else %}
+                        {% include "contig_table.jinja2" %}
+                    {% endif %}
+                </div>
+            </div>
+        </section>
+        {% endif %}
+
+        <!-- Resources
+================================================== -->
+        {% if strain.urls|length > 0 %}
+            <section id="resources" data-magellan-destination="resources">
+                <div class="page-header">
+                    <h2>Resources</h2>
+                    <hr />
+                    <div class="panel">
+                        <p id="resources_list">
+                            {% for resource in strain.urls|sort(attribute='display_name') if resource.category != 'source' %}
+                                <a href="{{ resource.link }}" {% if resource.category == 'pubmed' %}target="_blank"{% endif %}>{{ resource.display_name }}</a>{% if not loop.last %} | {% endif %}
+                            {% endfor %}
+                        </p>
+
+                        {% for resource in strain.urls if resource.category == 'source' %}
+                            {% if loop.first %}<h3>Sources</h3><p id="sources_resources_list">{% endif %}
+                            <a href="{{ resource.link }}" target="_blank">{{ resource.display_name }}</a>{% if not loop.last %} | {% else %}</p>{% endif %}
+                        {% endfor %}
+                    </div>
+                </div>
+            </section>
+        {% endif %}
+    </div>
+</div>
+{% endblock body %}
+
+{% block scripts %}
+<script src="{{asset_root}}/js/strain.js"></script>
+{% endblock scripts %}

@@ -1,0 +1,80 @@
+{% extends "global_layout.jinja2" %}
+
+{% block title %}{{ keyword.display_name }}{% endblock %}
+
+{% block head %}
+<script>
+	var keyword = {{ keyword_js|safe }};
+</script>
+{% endblock %}
+
+
+{% block body %}
+
+<!-- Navbar
+================================================== -->
+<div class="row">
+	
+<!-- Includes navbar.html into template -->
+    {% include "navbar.jinja2" %}
+
+    <div class="small-12 medium-10 columns content-column">
+
+        <script>
+            add_navbar_title('Keyword: <span class="gene_name">{{ keyword.display_name }}</span>');
+            add_navbar_element('Overview', 'overview');
+            add_navbar_element('Datasets', 'datasets');
+            add_navbar_element('Additional Keywords', 'additional_categories');
+        </script>
+
+        <!-- Summary
+        ================================================== -->
+        <section id="overview" data-magellan-destination="overview">
+            <div class="page-header">
+                <h1>Keyword: {{ keyword.display_name }}</h1>
+                <hr />
+                <div class="">
+                    <dl class="key-value">
+                        <dt>Description</dt>
+                        <dd>{{ keyword.description }}</dd>
+                     </dl>
+                </div>
+            </div>
+        </section>
+
+
+            <!-- Dataset
+================================================== -->
+        <section id="datasets" data-magellan-destination="datasets">
+            <div class="page-header">
+                <h2>Datasets <span id="expression_table_header" class="round secondary label"></span></h2>
+                <hr />
+                <div class="">
+                    <!-- Includes expression_table into template -->
+                    {% set table_id = "expression_table" %}
+                    {% include "dataset_table.jinja2" %}
+                </div>
+            </div>
+        </section>
+
+         <!-- Other keywords
+================================================== -->
+        <section id="additional_categories" data-magellan-destination="additional_categories">
+            <h2>Additional Keywords</h2>
+            <hr />
+            <div class="panel">
+                <p id='other_tags_list'></p>
+            </div>
+        </section>
+
+    </div>
+</div>
+
+{% endblock body %}
+
+{% block scripts %}
+<script src="{{asset_root}}/js/local.js"></script>
+<script src="{{asset_root}}/js/evidence.js"></script>
+<script src="{{asset_root}}/js/tag.js"></script>
+{% endblock scripts %}
+

@@ -1,0 +1,273 @@
+{% extends "global_layout.jinja2" %}
+
+{% block title %}{{ chemical.display_name }}{% endblock %}
+
+{% block head %}
+<script>
+    var chemical = {{ chemical_js|safe }}
+</script>
+{% endblock %}
+
+{% block body %}
+
+<!-- Navbar
+================================================== -->
+<div class="row">
+	
+    <!-- Includes navbar.html into template -->
+    {% include "navbar.jinja2" %}
+
+    <div class="small-12 medium-10 columns content-column">
+
+        <script>
+            add_navbar_title('Chemical: <span class="gene_name">{{ chemical.display_name }}</span>')
+            add_navbar_element('Overview', 'overview');
+	    {% if chemical.phenotype|length > 0 %}
+                add_navbar_element('Phenotype Annotations', 'phenotype');
+            {% endif %}
+	    {% if chemical.go|length > 0 %}
+	        add_navbar_element('Gene Ontology Annotations', 'go');
+	    {% endif %}
+	    {% if chemical.complexes|length > 0 %}
+	        add_navbar_element('Complexes', 'complex');
+            {% endif %}
+	    {% if chemical.pathways|length > 0 %}
+                add_navbar_element('Pathways', 'pathway');
+            {% endif %}
+	    {% if chemical.protein_abundance|length > 0 %}
+                add_navbar_element('Protein Abundance', 'protein_abundance');
+            {% endif %}
+	    {% if chemical.network_graph.edges|length > 0 %}
+	        add_navbar_element('Shared Chemicals', 'network');
+	    {% endif %}
+	    add_navbar_element('Resources', 'resources');
+        </script>
+
+        <!-- Summary
+        ================================================== -->
+        <section id="overview" data-magellan-destination="overview">
+            <div class="page-header">
+                <h1>Chemical: {{ chemical.display_name }}</h1>
+                <hr />
+                <div class="">
+                    <dl class="key-value">
+                        <dt>Chemical Name</dt>
+                        <dd>{{ chemical.display_name }}</dd>
+
+			{% if chemical.is_ntr != 1 %}
+                           <dt>Chebi ID</dt>
+                           <dd>
+                                {% if chemical.urls|length > 0 %}
+                                    <a href="{{ chemical.urls[0].link }}" target="_blank">
+                                {% endif %}
+                                {{ chemical.chebi_id }}
+                                {% if chemical.urls|length > 0 %}
+                                    </a>
+                                {% endif %}
+                             </dd>
+			{% endif %}
+
+			{% if chemical.definition != None %}
+			    <dt>Definition</dt>
+			    <dd>{{ chemical.definition }}</dd>
+			{% endif %}
+
+			{% if chemical.structure_image_url != '' %}
+                            <dt>Structure</dt>
+                            <dd>
+				<img src={{ chemical.structure_image_url }} id='strucImg' onClick="zoom()">
+			    </dd>
+                        {% endif %}
+
+			{% if chemical.synonyms|length > 0 %}
+			    <dt>Synonyms</dt>
+			    {% for synonym in chemical.synonyms %}
+			        {% if loop.first %}<dd>{% endif %}
+			        {{ synonym.display_name }}{% if not loop.last %}; {% else %}</dd>{% endif %}
+			    {% endfor %}
+			{% endif %}			
+                    </dl>
+                </div>
+            </div>
+        </section>
+
+        <!-- Phenotype
+        ================================================== -->
+	{% if chemical.phenotype|length > 0 %}
+        <section id="phenotype" data-magellan-destination="phenotype">
+            <div class="page-header">
+                <h2>Phenotype Annotations
+		    <a href="#" data-dropdown="phenotype_info"><i class="fa fa-info-circle"></i></a>
+		    <p id="phenotype_info" class="f-dropdown content medium" data-dropdown-content>
+                        Phenotype annotations for a gene are curated single mutant phenotypes that 
+			require an observable (e.g., "cell shape"), a qualifier (e.g., "abnormal"), 
+			a mutant type (e.g., null), strain background, and a reference. In addition, 
+			annotations are classified as classical genetics or high-throughput (e.g., 
+			large scale survey, systematic mutation set). Whenever possible, allele 
+			information and additional details are provided. 
+                    </p>
+                    <span id="phenotype_table_header" class="round secondary label"></span>
+                </h2>
+                <hr />
+                <!-- Includes phenotype_table into template -->
+                {% set table_id = "phenotype_table" %}
+                {% include "phenotype_table.jinja2" %}
+            </div>
+        </section>
+	{% endif %}
+
+	<!-- GO
+        ================================================== -->
+	{% if chemical.go|length > 0 %}
+        <section id="go" data-magellan-destination="go">
+            <div class="page-header">
+                <h2>Gene Ontology Annotations
+            	    <a href="#" data-dropdown="go_info"><i class="fa fa-info-circle"></i></a>
+            	    <p id="go_info" class="f-dropdown content medium" data-dropdown-content>
+                        GO Annotations consist of four mandatory components: a gene product, a term 
+			from one of the three <a href="http://geneontology.org/">Gene Ontology (GO)</a> 
+			controlled vocabularies (<a href='/ontology/go/molecular_function'>Molecular Function</a>,
+                	<a href='/ontology/go/biological_process'>Biological Process</a>, and
+                	<a href='/ontology/go/cellular_component'>Cellular Component</a>), a 
+			reference, and an evidence code. SGD has manually curated and high-throughput 
+			GO Annotations, both derived from the literature, as well as computational, 
+			or predicted, annotations. 
+                    </p>
+                    <span id="go_table_header" class="round secondary label"></span>
+                </h2>
+                <hr />
+                <!-- Includes go_table into template -->
+                {% set table_id = "go_table" %}
+                {% include "go_table.jinja2" %}
+            </div>
+        </section>
+	{% endif %}
+
+	<!-- Complex
+        ================================================== -->
+     	{% if chemical.complexes|length > 0 %}
+    	<section id="complex" data-magellan-destination="complex">
+             <h2>Complexes
+                <a href="#" data-dropdown="summary_help"><i class="fa fa-info-circle"></i></a>
+                   <p id="summary_help" class="f-dropdown content medium" data-dropdown-content>
+                       Macromolecular complex annotations are imported from the <a href='https://www.ebi.ac.uk/complexportal/home' target='infowin2'>Complex Portal</a>. These annotations have been derived from physical molecular interaction evidence extracted from the literature and cross-referenced in the entry, or by curator inference from information on homologs in closely related species or by inference from scientific background.
+                  </p>
+             </h2>
+             <hr />
+
+             <div class="panel">
+                  <ul>
+                       {% for c in chemical.complexes %}
+		            <li><a href="/complex/{{ c.format_name }}">{{ c.display_name }}</a></li>
+                       {% endfor %}
+                  </ul>
+             </div>
+        </section>
+        {% endif %}
+
+	<!-- Pathway
+        ================================================== -->
+	{% if chemical.pathways|length > 0 %}
+	<section id="pathway" data-magellan-destination="pathway">
+             <h2>Pathways</h2>
+             <hr />
+	     <div class="panel">
+                  <ul>
+                       {% for p in chemical.pathways %}
+                            <li><a href="{{ p.link_url }}">{{ p.display_name }}</a></li>
+                       {% endfor %}
+                  </ul>
+	     </div>
+	</section>
+        {% endif %}
+
+	<!-- Protein Abundance data
+        ================================================== -->
+	{% if chemical.protein_abundance|length > 0 %}
+	<section id="protein_abundance" data-magellan-destination="protein_abundance">
+            <div class="page-header">
+                <h2>Protein Abundance
+                    <a href="#" data-dropdown="protein_abundance_info"><i class="fa fa-info-circle"></i></a>
+                    <p id="protein_abundance_info" class="f-dropdown content medium" data-dropdown-content>
+                        This section contains protein abundance data for both untreated and treated cells obtained from over 20 studies. These data have been normalized and converted to a common unit of molecules per cell.
+                    </p>
+                    <span id="protein_abundance_table_header" class="round secondary label"></span>
+                </h2>
+                <hr />
+                <!-- Includes protein_abundance_table into template -->
+                {% set table_id = "protein_abundance_table" %}
+                {% include "protein_abundance_table.jinja2" %}
+            </div>
+        </section>
+        {% endif %}
+
+	<!-- Network diagram
+	================================================== -->
+	{% if chemical.network_graph.edges|length > 0 %}
+    	<section id="network" data-magellan-destination="network">
+        	 <div class="page-header">
+            	      <h2>Shared Chemicals
+                      		 <a href="#" data-dropdown="network_help"><i class="fa fa-info-circle"></i></a>
+                 		 <p id="network_help" class="f-dropdown content medium" data-dropdown-content>
+                      		 This diagram displays Gene Ontology terms (green), phenotypes (blue), and 
+				 macromolecular complexes (yellow) that are shared between the given chemical (black)
+				 and other chemicals (purple). The shared GO terms, phenotypes or complexes can be 
+				 visualized separately using the radio button at the bottom of the graph. 
+                                 </p>
+
+                      </h2>
+            	      <hr />
+                      <div id="j-chemical-network"></div>
+                 </div>
+        </section>
+	{% endif %}
+
+        <!-- Resources
+        ================================================== -->
+	<section id="resources" data-magellan-destination="resources">
+             <h2>Resources</h2>
+             <hr />
+             <div class="panel">
+                <p>
+                    <a href="https://www.rhea-db.org/searchresults?q={{ chemical.chebi_id }}" target="_blank">RHEA</a> | <a href="https://pubchem.ncbi.nlm.nih.gov/compound/{{ chemical.chebi_id }}" target="_blank">PubChem</a>
+		    {% if chemical.pharmGKB_link_url != '' %}
+		        | <a href={{ chemical.pharmGKB_link_url }} target="_blank">PharmGKB</a>
+		    {% endif %}
+                </p>
+             </div>
+        </section>
+	
+	<section>
+	   <p></p>
+	</section>
+    </div>
+</div>
+
+{% endblock body %}
+
+{% block scripts %}
+<script src="{{asset_root}}/js/build/cytoscape.min.js"></script>
+{# don't host arbor.js on CDN because it makes webworker files that don't work on the cloud :( #}
+<script src="/static/js/build/arbor.js"></script>
+<script src="{{asset_root}}/js/evidence.js"></script>
+<script src="{{asset_root}}/js/chemical.js"></script>
+<script type="text/javascript">
+    var clicked = 1;
+    function zoom() {
+        if (clicked == 3) {
+	    clicked = 1;
+	}
+	else {
+	    clicked = 3;
+	}
+	zoomOut(clicked)
+    }
+    
+    function zoomOut(count) {
+        var image = document.getElementById('strucImg');
+        var src = image.src;
+	image.src = src.substring(0, src.indexOf('dimensions=')) + 'dimensions=' + (200 * count);
+	image.style.display = "block";
+    }
+</script>
+{% endblock scripts %}

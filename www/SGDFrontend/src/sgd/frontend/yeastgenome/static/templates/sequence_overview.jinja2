@@ -1,0 +1,82 @@
+
+<dl class="key-value">
+                {% for alias in locus.aliases if alias.category == 'Alias' %}
+                    {% if loop.first %}<dt>Aliases</dt><dd>{% endif %}
+
+                    {{ alias.display_name }}
+                    {% set references = alias.references %}
+                    {% set full_url = True %}
+                    {%- include "biblio_references.jinja2" -%}
+
+                    {% if not loop.last %},{% else %}</dd>{% endif %}
+                {% endfor %}
+
+                {% for alias in locus.aliases if alias.category == 'NCBI protein name' %}
+                    {% if loop.first %}
+                        <dt>Protein Product</dt>
+                        <dd>
+                            {{ alias.display_name }}
+                            {% set references = alias.references %}
+                            {% set full_url = True %}
+                            {%- include "biblio_references.jinja2" -%}
+                        </dd>
+                    {% endif %}
+                {% endfor %}
+
+                <dt>Feature Type</dt>
+                <dd>{{ locus.locus_type }}
+                    {% if 'feature_type' in locus.qualities %}
+                        {% set references = locus.qualities.feature_type.references %}
+                        {% set full_url = True %}
+                        {% include "biblio_references.jinja2" %}
+                    {% endif %}
+
+                    {% if locus.qualifier != None %}, {{ locus.qualifier }}{% endif %}
+                    {% if 'qualifier' in locus.qualities %}
+                        {% set references = locus.qualities.qualifier.references %}
+                        {% set full_url = True %}
+                        {% include "biblio_references.jinja2" %}
+                    {% endif %}
+                </dd>
+
+                <dt>Description</dt>
+                <dd>
+                    {{ locus.description|safe  }}
+                    {% if 'description' in locus.qualities %}
+                        {% set references = locus.qualities.description.references %}
+                        {% set full_url = True %}
+                        {% include "biblio_references.jinja2" %}
+                    {% endif %}
+                </dd>
+
+                {% if locus.paralogs|length > 0 %}
+                    <dt>Paralog</dt>
+                    <dd>
+                    {% for paralog in locus.paralogs %}
+                        {% if paralog.child %}
+                            <a href="{{ paralog.child.link }}">{{ paralog.child.display_name }}</a>
+                        {% endif %}
+                        {% set references = paralog.references %}
+                        {% set full_url = True %}
+                        {% include "biblio_references.jinja2" %}
+                        {%- if not loop.last %}, {% endif %}
+                    {% endfor %}
+                    </dd>
+                {% endif %}
+
+                {% if 'ecnumbers' in locus and locus.ecnumbers != None  %}
+                    {% if locus.ecnumbers|length > 0 %}
+                        <dt>EC Number</dt>
+                        <dd>
+                        {% for ecnumber in locus.ecnumbers %}
+                            <a href="{{ ecnumber.link }}">{{ ecnumber.display_name }}</a>
+                            {%- if not loop.last %}, {% endif %}
+                        {% endfor %}
+                    {% endif %}
+                {% endif %}
+
+                {% if 'ecnumber' in locus and locus.ecnumber != None %}
+                    <dt>EC Number</dt>
+                    <dd><a href="{{ locus.ecnumber.link }}">{{ locus.ecnumber.display_name }}</a></dd>
+                {% endif %}
+</dl>
