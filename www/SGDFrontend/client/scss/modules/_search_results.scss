@@ -1,0 +1,141 @@
+// colors from https://github.com/mbostock/d3/wiki/Ordinal-Scales
+$link-color: #6582A6;
+$hover-color: #e6e6e6;
+
+.search-cat {
+	width: 1rem;
+	height: 1rem;
+	display: inline-block;
+	border-radius: 0.5rem;
+	background: #1f77b4;
+	position: relative;
+	top: 0.15rem;
+	margin-right: 0.25rem;
+	&.reference {
+		background: #ff7f0e;
+	}
+	&.biological_process {
+		background: #2ca02c;
+	}
+	&.cellular_component {
+		background: #9467bd;
+	}
+	&.molecular_function {
+		background: #8c564b;
+	}
+	&.phenotype {
+		background: #e377c2;
+	}
+	&.strain {
+		background: #bcbd22;
+	}
+	&.resource {
+		background: #17becf;
+	}
+	&.contig {
+		background: #7f7f7f;
+	}
+	&.download {
+		background: #d62728;
+	}
+	&.colleague {
+		background: #ffbb78;
+	}
+	&.observable {
+		background: #f7b6d2;
+	}
+	&.reserved_name {
+		background: #aec7e8;
+	}
+	&.chemical {
+		background: #ff9896;
+	}
+	&.disease {
+		background: #D95F02;
+	}
+	&.complex {
+		background: #E6AB03;
+	}
+}
+
+.search-cat-title .search-cat {
+	top: 0;
+}
+
+.search-result-title-container .search-cat {
+	margin-top: 0.25rem;
+}
+
+.search-result em {
+	background: yellow;
+}
+
+.search-agg:hover {
+	background: #e6e6e6;
+}
+
+.search-agg.active {
+	background: #6582A6;
+	&:hover {
+		background: #6582A6;
+	}
+}
+
+.status-btn {
+	padding: 0.25rem 0.5rem;
+	margin-bottom: 0.25rem;
+}
+
+.agg {
+	display: flex;
+	justify-content: space-between;
+	cursor: pointer;
+	padding: 0.25rem 0.5rem;
+	margin-bottom: 0.25rem;
+	user-select: none;
+	transition: background-color 300ms ease-out
+}
+.active-agg {
+	color: white;
+	border: 1px solid $hover-color
+}
+
+.cat-label {
+	margin-bottom: 0.25rem;
+}
+
+.inactive-agg {
+	color: $link-color;
+	border: 1px solid transparent;
+}
+
+.agg-label{
+	margin: 0 0 0.5rem 0;
+	display: flex;
+	justify-content: space-between;
+	cursor: pointer;
+	text-transform: capitalize;
+	font-weight: bold
+}
+.icon {
+	font-weight: bold;
+}
+.status-btn-label{
+	color: #6582A6;
+	margin-left:0.2rem;
+}
+.node-highlight {
+	color: white;
+	padding: '0.1rem';
+}
+.div-highlight {
+	background: #6582A6;
+	padding: 0.1rem;
+}
+.div-highlight a:hover{
+	color: white !important;
+}
+
+.downloads-table-center i{
+	text-align: center !important;
+}
