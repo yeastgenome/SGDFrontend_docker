@@ -16,7 +16,8 @@ RUN DEBIAN_FRONTEND=noninteractive apt-get update \
 	emboss \
         python3-pip \
 	ruby-dev \
-	bundler
+	bundler \
+	npm
     && pip3 install virtualenv 
 
 WORKDIR /data
